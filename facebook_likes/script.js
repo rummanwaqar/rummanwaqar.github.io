@@ -19,7 +19,7 @@ $(function() {
   teams = [
   {
     url: 'https://www.facebook.com/University-of-Alberta-EcoCar-Team-287163227967047',
-    name: 'Ualberta EcoCar',
+    name: 'UAlberta EcoCar',
     baseline: 248
   },
   {
