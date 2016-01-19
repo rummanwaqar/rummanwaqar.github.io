@@ -44,6 +44,10 @@
     * {
       box-sizing: border-box;
     }
+    a {
+      color: inherit;
+      text-decoration: inherit; /* no underline */
+    }
     body {
       color: #333;
       -webkit-font-smoothing: antialiased;
@@ -93,7 +97,7 @@
       font-size: .75em;
       padding: 1em;
       background: #3d3d3d;
-      width: 12em;
+      width: 14em;
       display: inline-block;
       position: relative;
       z-index: 2;
@@ -102,6 +106,10 @@
     }
     .bar .label.light {
       background: #575757;
+    }
+
+    .bar .label.ualberta {
+      background: #007C41;
     }
     .count {
       position: absolute;
@@ -120,32 +128,24 @@
       <h1>Shell Marathon Facebook Likes</h1>
 
       <div class="holder">
-
       </div>
     </div>
 
     <script type="text/javascript">
-    function fetchLikeCount(url){
-      return $.Deferred(function(defer){
-          $.ajax({
-              dataType: 'jsonp',
-              url: 'https://api.facebook.com/method/fql.query?callback=callback',
-              data: {
-                  query: 'SELECT like_count FROM link_stat WHERE url="' + url + '"',
-                  format: 'JSON'
-              }
-          }).then(function(res){
-              try{
-                  var count = res[0].like_count;
-                  defer.resolve(count);
-              }catch(e){
-                  reject();
-              }
-          }, reject);
-          function reject(){
-              defer.reject(';(');
-          };
-      }).promise();
+    function fetchLikeCount(url, callback){
+      var likes;
+      $.ajax({
+        dataType: 'jsonp',
+        url: 'https://api.facebook.com/method/fql.query?callback=callback',
+        data: {
+            query: 'SELECT like_count FROM link_stat WHERE url="' + url + '"',
+            format: 'JSON'
+        },
+        async: false,
+        success: function(res) {
+          callback(res[0].like_count);
+        }
+      });
     };
 
     $(function() {
@@ -153,47 +153,73 @@
       var teams = [
         {
           url: 'https://www.facebook.com/University-of-Alberta-EcoCar-Team-287163227967047',
-          name: 'Ualberta EcoCar',
-          likes: 0
+          name: 'Ualberta EcoCar'
         },
         {
           url: 'https://www.facebook.com/utsupermileage/',
-          name: 'UofT Supermilage',
-          likes: 0
+          name: 'UofT Supermileage'
         },
         {
           url: 'https://www.facebook.com/ubcst/',
-          name: 'UBC Supermileage',
-          likes: 0
+          name: 'UBC Supermileage'
+        },
+        {
+          url: 'https://www.facebook.com/queensevt/',
+          name: "Queen's Eco-Vehicle"
+        },
+        {
+          url: 'https://www.facebook.com/UWEcoMarathon/',
+          name: 'Waterloo Supermileage'
+        },
+        {
+          url: 'https://www.facebook.com/AlerionSupermileage/',
+          name: 'ULaval Supermileage',
         }
+
       ];
 
+      // get likes
       var max_likes = 0;
 
-      var setLikes = function(i, likes) {
-        teams[i].likes = likes;
-        if(res > max_likes) max_likes = res;
-        console.log(likes);
-      };
-
-      // get likes
-      for( var i=0; i<teams.length; i++) {
-        fetchLikeCount(teams[i].url).always(function(res) {
-          setLikes(i, res);
-        });
-        //setLikes(i, res);
-        //console.log(i);
-      }
-
-
-      // add html
-      Promise.all(teams).then(function() {
-        teams.forEach(function(team) {
-          //console.log(team.likes);
-          $(".holder").append('<div class="bar cf" data-percent="' + 23 + '%"><span class="label">' + team.name + '</label></div>');
+      teams.forEach(function(team) {
+        fetchLikeCount(team.url, function(likes) {
+          team.likes = likes;
+          if(likes > max_likes) {
+            max_likes = likes;
+          }
         });
       });
 
+      // add html
+      $(document).ajaxStop(function () {
+        teams.forEach(function(team) {
+          $(".holder").append('<div class="bar cf"></div>');
+        });
+
+        $('.bar').each(function(i) {
+          var bar = $(this);
+          var team = teams[i];
+          bar.attr('data-percent', (team.likes + 50) / max_likes * 100 + '%');
+          bar.append('<span class="label' + (i%2==0?'':' light') + (i==0?" ualberta":"") + '"><a href="' + team.url + '">' + team.name + '</a></span>');
+          bar.append('<span class="count">' + team.likes + '</span>');
+          setTimeout(function() {
+            bar.css('width', bar.attr('data-percent'));
+          }, i * 100);
+        });
+
+        $('.count').each(function(i) {
+          $(this).prop('Counter', 0).animate({
+            Counter: teams[i].likes
+          }, {
+            duration: 2000,
+            easing: 'swing',
+            step: function(now) {
+              $(this).text(Math.ceil(now));
+            }
+          });
+        })
+
+      });
     });
     </script>
 </body>
