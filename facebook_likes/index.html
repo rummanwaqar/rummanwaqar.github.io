@@ -107,7 +107,6 @@
     .bar .label.light {
       background: #575757;
     }
-
     .bar .label.ualberta {
       background: #007C41;
     }
@@ -147,55 +146,55 @@
         }
       });
     };
-
     $(function() {
       // team information
       var teams = [
         {
           url: 'https://www.facebook.com/University-of-Alberta-EcoCar-Team-287163227967047',
-          name: 'Ualberta EcoCar'
+          name: 'Ualberta EcoCar',
+          baseline: 248
         },
         {
           url: 'https://www.facebook.com/utsupermileage/',
-          name: 'UofT Supermileage'
+          name: 'UofT Supermileage',
+          baseline: 524
         },
         {
           url: 'https://www.facebook.com/ubcst/',
-          name: 'UBC Supermileage'
+          name: 'UBC Supermileage',
+          baseline: 1076
         },
         {
           url: 'https://www.facebook.com/queensevt/',
-          name: "Queen's Eco-Vehicle"
+          name: "Queen's Eco-Vehicle",
+          baseline: 570
         },
         {
           url: 'https://www.facebook.com/UWEcoMarathon/',
-          name: 'Waterloo Supermileage'
+          name: 'Waterloo Supermileage',
+          baseline: 618
         },
         {
           url: 'https://www.facebook.com/AlerionSupermileage/',
           name: 'ULaval Supermileage',
+          baseline: 783
         }
-
       ];
-
       // get likes
       var max_likes = 0;
-
       teams.forEach(function(team) {
         fetchLikeCount(team.url, function(likes) {
-          team.likes = likes;
+          team.likes = likes - team.baseline;
           if(likes > max_likes) {
             max_likes = likes;
           }
         });
       });
-
       // add html
       $(document).ajaxStop(function () {
         teams.forEach(function(team) {
           $(".holder").append('<div class="bar cf"></div>');
         });
-
         $('.bar').each(function(i) {
           var bar = $(this);
           var team = teams[i];
@@ -206,7 +205,6 @@
             bar.css('width', bar.attr('data-percent'));
           }, i * 100);
         });
-
         $('.count').each(function(i) {
           $(this).prop('Counter', 0).animate({
             Counter: teams[i].likes
@@ -218,7 +216,6 @@
             }
           });
         })
-
       });
     });
     </script>
