@@ -24,7 +24,7 @@ $(function() {
   },
   {
     url: 'https://www.facebook.com/utsupermileage/',
-    name: 'UofT Supermileage',
+    name: 'U of T Supermileage',
     baseline: 524
   },
   {
@@ -100,8 +100,19 @@ $(function() {
       },
       plotOptions: {
         series: {
-          stacking: 'normal'
+          dataLabels: {
+            enabled: true,
+            align: 'right',
+            color: '#FFFFFF',
+            x: -5,
+            y: -1,
+            style: {
+              textShadow: false,
+            }
+          },
+          stacking: 'normal'			
         }
+
       },
       series: [
       {
